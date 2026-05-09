@@ -3,17 +3,21 @@ import type { UserProfile } from '../types/finance';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { upsertUserProfile } from '../services/users';
 
-interface SettingsProps { user: UserProfile; }
+interface SettingsProps {
+  user: UserProfile;
+  isAuthenticated?: boolean;
+  onLogout?: () => void;
+}
 
-export function Settings({ user }: SettingsProps) {
+export function Settings({ user, isAuthenticated = false, onLogout }: SettingsProps) {
   const [fullName, setFullName] = useState(user.fullName);
   const [email, setEmail] = useState(user.email);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
 
   async function handleSave() {
-    if (!isSupabaseConfigured) {
-      setSaveMsg('Connect Supabase to save profile changes.');
+    if (!isSupabaseConfigured || !isAuthenticated) {
+      setSaveMsg('Sign in to save profile changes.');
       setTimeout(() => setSaveMsg(null), 3000);
       return;
     }
@@ -111,7 +115,14 @@ export function Settings({ user }: SettingsProps) {
               ? 'MFA and device session management are available through Supabase Auth.'
               : 'Connect Supabase Auth to enable MFA, device sessions and password reset.'}
           </p>
-          {/* TODO: Add MFA toggle, active sessions list, change password flow once Supabase Auth is fully wired */}
+          {isAuthenticated && onLogout && (
+            <button
+              onClick={onLogout}
+              className="mt-4 w-full rounded-2xl border border-danger/30 bg-danger/10 px-5 py-3 font-extrabold text-danger transition hover:bg-danger/20"
+            >
+              Sign out
+            </button>
+          )}
         </div>
       </section>
     </div>

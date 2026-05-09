@@ -179,7 +179,7 @@ export default function App() {
             />
           )}
           {activePage === 'settings' && (
-            <Settings user={profile} />
+            <Settings user={profile} isAuthenticated={isAuthenticated} onLogout={handleLogout} />
           )}
         </main>
       </div>
