@@ -7,6 +7,7 @@ interface SidebarProps {
   onNavigate: (page: PageKey) => void;
   open: boolean;
   onClose: () => void;
+  onLogout?: () => void;
 }
 
 const items: Array<{ key: PageKey | 'logout'; label: string; icon: typeof LayoutDashboard }> = [
@@ -19,7 +20,7 @@ const items: Array<{ key: PageKey | 'logout'; label: string; icon: typeof Layout
   { key: 'logout', label: 'Logout', icon: LogOut }
 ];
 
-export function Sidebar({ activePage, onNavigate, open, onClose }: SidebarProps) {
+export function Sidebar({ activePage, onNavigate, open, onClose, onLogout }: SidebarProps) {
   return (
     <>
       <div className={cn('fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden', open ? 'block' : 'hidden')} onClick={onClose} />
@@ -40,7 +41,11 @@ export function Sidebar({ activePage, onNavigate, open, onClose }: SidebarProps)
               <button
                 key={item.key}
                 onClick={() => {
-                  if (item.key !== 'logout') onNavigate(item.key);
+                  if (item.key === 'logout') {
+                    onLogout?.();
+                  } else {
+                    onNavigate(item.key);
+                  }
                   onClose();
                 }}
                 className={cn('flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-bold transition', active ? 'bg-graphite text-white shadow-card' : 'text-muted hover:bg-neutral-100 hover:text-graphite')}

@@ -18,6 +18,7 @@ import { useTransactions } from './hooks/useTransactions';
 import { useProfile } from './hooks/useProfile';
 import { isSupabaseConfigured } from './lib/supabase';
 import { executeTransfer } from './services/transfers';
+import { signOut } from './services/auth';
 import { buildMonthlyData, buildCategorySpend } from './utils/analytics';
 import { monthlyData as mockMonthlyData, categorySpend as mockCategorySpend } from './data/mockData';
 
@@ -78,6 +79,14 @@ export default function App() {
     }
   }, [accounts, selectedAccountId]);
 
+  async function handleLogout() {
+    try {
+      await signOut();
+    } catch {
+      // session already gone
+    }
+  }
+
   function handleNavigate(page: PageKey) {
     setActivePage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -127,7 +136,7 @@ export default function App() {
   return (
     <div className="min-h-dvh bg-mist text-graphite">
       <div className="mx-auto flex max-w-[1520px] gap-5 lg:p-6">
-        <Sidebar activePage={activePage} onNavigate={handleNavigate} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <Sidebar activePage={activePage} onNavigate={handleNavigate} open={sidebarOpen} onClose={() => setSidebarOpen(false)} onLogout={handleLogout} />
         <main className="min-w-0 flex-1 px-4 pb-28 pt-3 sm:px-6 lg:px-0 lg:pb-0 lg:pt-0">
           <Header user={profile} title={pageTitles[activePage]} onMenu={() => setSidebarOpen(true)} />
 
