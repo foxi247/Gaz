@@ -4,15 +4,16 @@ import type { Transaction } from '../types/finance';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { getTransactions } from '../services/transactions';
 
-export function useTransactions(userId: string) {
+export function useTransactions(userId: string, isAuthenticated: boolean) {
+  const liveMode = isSupabaseConfigured && isAuthenticated;
   const [transactions, setTransactions] = useState<Transaction[]>(
-    isSupabaseConfigured ? [] : mockTransactions
+    liveMode ? [] : mockTransactions
   );
-  const [loading, setLoading] = useState(isSupabaseConfigured);
+  const [loading, setLoading] = useState(liveMode);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    if (!isSupabaseConfigured) return;
+    if (!liveMode) return;
     setLoading(true);
     setError(null);
     try {
@@ -23,7 +24,7 @@ export function useTransactions(userId: string) {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, liveMode]);
 
   useEffect(() => { load(); }, [load]);
 

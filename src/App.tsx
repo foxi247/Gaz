@@ -36,7 +36,7 @@ export default function App() {
   const [selectedAccountId, setSelectedAccountId] = useState('');
   const { message, showToast } = useToast();
 
-  const { userId, loading: authLoading } = useAuth();
+  const { userId, isAuthenticated, loading: authLoading } = useAuth();
   const { profile } = useProfile(userId);
   const {
     accounts,
@@ -45,28 +45,30 @@ export default function App() {
     error: accountsError,
     reload: reloadAccounts,
     addAccount,
-  } = useAccounts(userId);
+  } = useAccounts(userId, isAuthenticated);
   const {
     transactions,
     loading: txLoading,
     error: txError,
     prependTransaction,
     reload: reloadTransactions,
-  } = useTransactions(userId);
+  } = useTransactions(userId, isAuthenticated);
 
   const sortedTransactions = useMemo(
     () => [...transactions].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
     [transactions]
   );
 
+  const liveMode = isSupabaseConfigured && isAuthenticated;
+
   const monthlyData = useMemo(
-    () => (isSupabaseConfigured ? buildMonthlyData(sortedTransactions) : mockMonthlyData),
-    [sortedTransactions]
+    () => (liveMode ? buildMonthlyData(sortedTransactions) : mockMonthlyData),
+    [liveMode, sortedTransactions]
   );
 
   const categorySpend = useMemo(
-    () => (isSupabaseConfigured ? buildCategorySpend(sortedTransactions) : mockCategorySpend),
-    [sortedTransactions]
+    () => (liveMode ? buildCategorySpend(sortedTransactions) : mockCategorySpend),
+    [liveMode, sortedTransactions]
   );
 
   // Set selected account once accounts are loaded
@@ -82,7 +84,7 @@ export default function App() {
   }
 
   async function handleTransfer(payload: TransferPayload) {
-    if (isSupabaseConfigured) {
+    if (liveMode) {
       try {
         await executeTransfer({
           senderUserId: userId,
