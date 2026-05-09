@@ -4,13 +4,14 @@ import type { Account, AccountType, CurrencyCode } from '../types/finance';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { getAccounts, createAccount } from '../services/accounts';
 
-export function useAccounts(userId: string) {
-  const [accounts, setAccounts] = useState<Account[]>(isSupabaseConfigured ? [] : mockAccounts);
-  const [loading, setLoading] = useState(isSupabaseConfigured);
+export function useAccounts(userId: string, isAuthenticated: boolean) {
+  const liveMode = isSupabaseConfigured && isAuthenticated;
+  const [accounts, setAccounts] = useState<Account[]>(liveMode ? [] : mockAccounts);
+  const [loading, setLoading] = useState(liveMode);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    if (!isSupabaseConfigured) return;
+    if (!liveMode) return;
     setLoading(true);
     setError(null);
     try {
@@ -21,7 +22,7 @@ export function useAccounts(userId: string) {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, liveMode]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -30,7 +31,7 @@ export function useAccounts(userId: string) {
     type: AccountType;
     currency?: CurrencyCode;
   }) => {
-    if (!isSupabaseConfigured) return;
+    if (!liveMode) return;
     const account = await createAccount({ userId, ...payload });
     setAccounts((prev) => [...prev, account]);
   }, [userId]);

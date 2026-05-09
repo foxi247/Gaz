@@ -237,3 +237,21 @@ begin
   return v_transfer_id;
 end;
 $$;
+
+-- ============================================================
+-- Grants — без этого Supabase возвращает 403 Forbidden
+-- ============================================================
+grant usage on schema public to anon, authenticated;
+
+grant select, insert, update, delete on public.users        to authenticated;
+grant select, insert, update, delete on public.accounts     to authenticated;
+grant select, insert, update, delete on public.transactions to authenticated;
+grant select, insert, update, delete on public.transfers    to authenticated;
+grant select, insert, update, delete on public.categories   to authenticated;
+
+-- anon видит только пустые результаты (RLS блокирует строки), но без 403
+grant select on public.users        to anon;
+grant select on public.accounts     to anon;
+grant select on public.transactions to anon;
+grant select on public.transfers    to anon;
+grant select on public.categories   to anon;
