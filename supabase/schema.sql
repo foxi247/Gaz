@@ -87,6 +87,10 @@ alter table public.transfers enable row level security;
 alter table public.categories enable row level security;
 
 -- users: can read and update own profile
+drop policy if exists "users: select own" on public.users;
+drop policy if exists "users: insert own" on public.users;
+drop policy if exists "users: update own" on public.users;
+
 create policy "users: select own" on public.users
   for select using (auth.uid() = id);
 
@@ -97,6 +101,11 @@ create policy "users: update own" on public.users
   for update using (auth.uid() = id);
 
 -- accounts
+drop policy if exists "accounts: select own" on public.accounts;
+drop policy if exists "accounts: insert own" on public.accounts;
+drop policy if exists "accounts: update own" on public.accounts;
+drop policy if exists "accounts: delete own" on public.accounts;
+
 create policy "accounts: select own" on public.accounts
   for select using (auth.uid() = user_id);
 
@@ -110,6 +119,11 @@ create policy "accounts: delete own" on public.accounts
   for delete using (auth.uid() = user_id);
 
 -- transactions
+drop policy if exists "transactions: select own" on public.transactions;
+drop policy if exists "transactions: insert own" on public.transactions;
+drop policy if exists "transactions: update own" on public.transactions;
+drop policy if exists "transactions: delete own" on public.transactions;
+
 create policy "transactions: select own" on public.transactions
   for select using (auth.uid() = user_id);
 
@@ -123,6 +137,9 @@ create policy "transactions: delete own" on public.transactions
   for delete using (auth.uid() = user_id);
 
 -- transfers: sender or receiver can view
+drop policy if exists "transfers: select as sender or receiver" on public.transfers;
+drop policy if exists "transfers: insert as sender" on public.transfers;
+
 create policy "transfers: select as sender or receiver" on public.transfers
   for select using (
     auth.uid() = sender_user_id or auth.uid() = receiver_user_id
@@ -132,6 +149,11 @@ create policy "transfers: insert as sender" on public.transfers
   for insert with check (auth.uid() = sender_user_id);
 
 -- categories
+drop policy if exists "categories: select own" on public.categories;
+drop policy if exists "categories: insert own" on public.categories;
+drop policy if exists "categories: update own" on public.categories;
+drop policy if exists "categories: delete own" on public.categories;
+
 create policy "categories: select own" on public.categories
   for select using (auth.uid() = user_id);
 
