@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { MobileNav } from './components/layout/MobileNav';
@@ -60,17 +60,17 @@ export default function App() {
   );
 
   const monthlyData = useMemo(
-    () => isSupabaseConfigured ? buildMonthlyData(sortedTransactions) : mockMonthlyData,
+    () => (isSupabaseConfigured ? buildMonthlyData(sortedTransactions) : mockMonthlyData),
     [sortedTransactions]
   );
 
   const categorySpend = useMemo(
-    () => isSupabaseConfigured ? buildCategorySpend(sortedTransactions) : mockCategorySpend,
+    () => (isSupabaseConfigured ? buildCategorySpend(sortedTransactions) : mockCategorySpend),
     [sortedTransactions]
   );
 
-  // Set initial selected account once accounts are loaded
-  useMemo(() => {
+  // Set selected account once accounts are loaded
+  useEffect(() => {
     if (accounts.length > 0 && !selectedAccountId) {
       setSelectedAccountId(accounts[0].id);
     }
@@ -98,7 +98,6 @@ export default function App() {
         showToast(err instanceof Error ? err.message : 'Transfer failed');
       }
     } else {
-      // Mock mode: update state locally
       setAccounts((current) =>
         current.map((acc) =>
           acc.id === payload.fromAccountId ? { ...acc, balance: acc.balance - payload.amount } : acc
